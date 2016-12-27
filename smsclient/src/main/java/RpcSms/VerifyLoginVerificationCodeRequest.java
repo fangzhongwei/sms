@@ -24,17 +24,17 @@ public class VerifyLoginVerificationCodeRequest extends Ice.ObjectImpl
 {
     public VerifyLoginVerificationCodeRequest()
     {
-        traceId = "";
         fingerPrint = "";
         mobile = "";
+        verifycationCode = "";
     }
 
-    public VerifyLoginVerificationCodeRequest(String traceId, int deviceType, String fingerPrint, String mobile)
+    public VerifyLoginVerificationCodeRequest(int deviceType, String fingerPrint, String mobile, String verifycationCode)
     {
-        this.traceId = traceId;
         this.deviceType = deviceType;
         this.fingerPrint = fingerPrint;
         this.mobile = mobile;
+        this.verifycationCode = verifycationCode;
     }
 
     private static class __F implements Ice.ObjectFactory
@@ -101,24 +101,22 @@ public class VerifyLoginVerificationCodeRequest extends Ice.ObjectImpl
     protected void __writeImpl(IceInternal.BasicStream __os)
     {
         __os.startWriteSlice(ice_staticId(), -1, true);
-        __os.writeString(traceId);
         __os.writeInt(deviceType);
         __os.writeString(fingerPrint);
         __os.writeString(mobile);
+        __os.writeString(verifycationCode);
         __os.endWriteSlice();
     }
 
     protected void __readImpl(IceInternal.BasicStream __is)
     {
         __is.startReadSlice();
-        traceId = __is.readString();
         deviceType = __is.readInt();
         fingerPrint = __is.readString();
         mobile = __is.readString();
+        verifycationCode = __is.readString();
         __is.endReadSlice();
     }
-
-    public String traceId;
 
     public int deviceType;
 
@@ -126,11 +124,13 @@ public class VerifyLoginVerificationCodeRequest extends Ice.ObjectImpl
 
     public String mobile;
 
+    public String verifycationCode;
+
     public VerifyLoginVerificationCodeRequest
     clone()
     {
         return (VerifyLoginVerificationCodeRequest)super.clone();
     }
 
-    public static final long serialVersionUID = 1590471346819794112L;
+    public static final long serialVersionUID = 3519249325129374664L;
 }

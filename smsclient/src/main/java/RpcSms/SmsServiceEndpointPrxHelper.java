@@ -119,7 +119,7 @@ public final class SmsServiceEndpointPrxHelper extends Ice.ObjectPrxHelperBase i
                                                             IceInternal.Functional_BoolCallback __sentCb)
     {
         return begin_sendLoginVerificationCode(traceId, request, __ctx, __explicitCtx, __synchronous, 
-                                               new IceInternal.Functional_TwowayCallbackArg1<RpcSms.SendLoginVerificationCodeResponse>(__responseCb, __exceptionCb, __sentCb)
+                                               new IceInternal.Functional_TwowayCallbackArg1<SendLoginVerificationCodeResponse>(__responseCb, __exceptionCb, __sentCb)
                                                    {
                                                        public final void __completed(Ice.AsyncResult __result)
                                                        {
@@ -301,7 +301,7 @@ public final class SmsServiceEndpointPrxHelper extends Ice.ObjectPrxHelperBase i
                                                               IceInternal.Functional_BoolCallback __sentCb)
     {
         return begin_verifyLoginVerificationCode(traceId, request, __ctx, __explicitCtx, __synchronous, 
-                                                 new IceInternal.Functional_TwowayCallbackArg1<RpcSms.BaseResponse>(__responseCb, __exceptionCb, __sentCb)
+                                                 new IceInternal.Functional_TwowayCallbackArg1<BaseResponse>(__responseCb, __exceptionCb, __sentCb)
                                                      {
                                                          public final void __completed(Ice.AsyncResult __result)
                                                          {

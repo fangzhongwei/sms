@@ -24,14 +24,12 @@ public class SendLoginVerificationCodeRequest extends Ice.ObjectImpl
 {
     public SendLoginVerificationCodeRequest()
     {
-        traceId = "";
         fingerPrint = "";
         mobile = "";
     }
 
-    public SendLoginVerificationCodeRequest(String traceId, int deviceType, String fingerPrint, String mobile, boolean resend, int lastChannel)
+    public SendLoginVerificationCodeRequest(int deviceType, String fingerPrint, String mobile, boolean resend, int lastChannel)
     {
-        this.traceId = traceId;
         this.deviceType = deviceType;
         this.fingerPrint = fingerPrint;
         this.mobile = mobile;
@@ -103,7 +101,6 @@ public class SendLoginVerificationCodeRequest extends Ice.ObjectImpl
     protected void __writeImpl(IceInternal.BasicStream __os)
     {
         __os.startWriteSlice(ice_staticId(), -1, true);
-        __os.writeString(traceId);
         __os.writeInt(deviceType);
         __os.writeString(fingerPrint);
         __os.writeString(mobile);
@@ -115,7 +112,6 @@ public class SendLoginVerificationCodeRequest extends Ice.ObjectImpl
     protected void __readImpl(IceInternal.BasicStream __is)
     {
         __is.startReadSlice();
-        traceId = __is.readString();
         deviceType = __is.readInt();
         fingerPrint = __is.readString();
         mobile = __is.readString();
@@ -123,8 +119,6 @@ public class SendLoginVerificationCodeRequest extends Ice.ObjectImpl
         lastChannel = __is.readInt();
         __is.endReadSlice();
     }
-
-    public String traceId;
 
     public int deviceType;
 
@@ -142,5 +136,5 @@ public class SendLoginVerificationCodeRequest extends Ice.ObjectImpl
         return (SendLoginVerificationCodeRequest)super.clone();
     }
 
-    public static final long serialVersionUID = -2557625854046075511L;
+    public static final long serialVersionUID = -6481208970920874718L;
 }

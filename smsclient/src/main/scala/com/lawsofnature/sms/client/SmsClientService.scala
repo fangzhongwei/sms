@@ -17,11 +17,11 @@ trait SmsClientService {
   def verifyLoginVerificationCode(traceId: String, request: VerifyLoginVerificationCodeRequest): BaseResponse
 }
 
-class SmsClientServiceImpl @Inject()(@Named("edcenter.ice.client.init.config") iceInitConfig: String,
-                                     @Named("edcenter.ice.client.init.size") iceInitSizeConfig: String,
-                                     @Named("edcenter.ice.client.init.size-max") iceInitSizeMaxConfig: String,
-                                     @Named("edcenter.ice.client.init.size-warn") iceInitSizeWarnConfig: String,
-                                     @Named("edcenter.ice.client.proxy.config") proxyConfig: String,
+class SmsClientServiceImpl @Inject()(@Named("sms.ice.client.init.config") iceInitConfig: String,
+                                     @Named("sms.ice.client.init.size") iceInitSizeConfig: String,
+                                     @Named("sms.ice.client.init.size-max") iceInitSizeMaxConfig: String,
+                                     @Named("sms.ice.client.init.size-warn") iceInitSizeWarnConfig: String,
+                                     @Named("sms.ice.client.proxy.config") proxyConfig: String,
                                      icePrxFactory: IcePrxFactory) extends SmsClientService {
   val logger = LoggerFactory.getLogger(this.getClass)
 

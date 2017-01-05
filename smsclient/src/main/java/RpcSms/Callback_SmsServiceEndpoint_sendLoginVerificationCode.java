@@ -21,7 +21,7 @@
 package RpcSms;
 
 public abstract class Callback_SmsServiceEndpoint_sendLoginVerificationCode
-    extends IceInternal.TwowayCallback implements Ice.TwowayCallbackArg1<SendLoginVerificationCodeResponse>
+    extends IceInternal.TwowayCallback implements Ice.TwowayCallbackArg1<RpcSms.SendLoginVerificationCodeResponse>
 {
     public final void __completed(Ice.AsyncResult __result)
     {

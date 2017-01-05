@@ -25,14 +25,16 @@ public class SendLoginVerificationCodeRequest extends Ice.ObjectImpl
     public SendLoginVerificationCodeRequest()
     {
         fingerPrint = "";
-        mobile = "";
+        mobileTicket = "";
     }
 
-    public SendLoginVerificationCodeRequest(int deviceType, String fingerPrint, String mobile, boolean resend, int lastChannel)
+    public SendLoginVerificationCodeRequest(long ip, int deviceType, String fingerPrint, String mobileTicket, int smsType, boolean resend, int lastChannel)
     {
+        this.ip = ip;
         this.deviceType = deviceType;
         this.fingerPrint = fingerPrint;
-        this.mobile = mobile;
+        this.mobileTicket = mobileTicket;
+        this.smsType = smsType;
         this.resend = resend;
         this.lastChannel = lastChannel;
     }
@@ -101,9 +103,11 @@ public class SendLoginVerificationCodeRequest extends Ice.ObjectImpl
     protected void __writeImpl(IceInternal.BasicStream __os)
     {
         __os.startWriteSlice(ice_staticId(), -1, true);
+        __os.writeLong(ip);
         __os.writeInt(deviceType);
         __os.writeString(fingerPrint);
-        __os.writeString(mobile);
+        __os.writeString(mobileTicket);
+        __os.writeInt(smsType);
         __os.writeBool(resend);
         __os.writeInt(lastChannel);
         __os.endWriteSlice();
@@ -112,19 +116,25 @@ public class SendLoginVerificationCodeRequest extends Ice.ObjectImpl
     protected void __readImpl(IceInternal.BasicStream __is)
     {
         __is.startReadSlice();
+        ip = __is.readLong();
         deviceType = __is.readInt();
         fingerPrint = __is.readString();
-        mobile = __is.readString();
+        mobileTicket = __is.readString();
+        smsType = __is.readInt();
         resend = __is.readBool();
         lastChannel = __is.readInt();
         __is.endReadSlice();
     }
 
+    public long ip;
+
     public int deviceType;
 
     public String fingerPrint;
 
-    public String mobile;
+    public String mobileTicket;
+
+    public int smsType;
 
     public boolean resend;
 
@@ -136,5 +146,5 @@ public class SendLoginVerificationCodeRequest extends Ice.ObjectImpl
         return (SendLoginVerificationCodeRequest)super.clone();
     }
 
-    public static final long serialVersionUID = -6481208970920874718L;
+    public static final long serialVersionUID = 6836228993254210474L;
 }

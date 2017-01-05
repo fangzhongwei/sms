@@ -25,15 +25,17 @@ public class VerifyLoginVerificationCodeRequest extends Ice.ObjectImpl
     public VerifyLoginVerificationCodeRequest()
     {
         fingerPrint = "";
-        mobile = "";
+        mobileTicket = "";
         verifycationCode = "";
     }
 
-    public VerifyLoginVerificationCodeRequest(int deviceType, String fingerPrint, String mobile, String verifycationCode)
+    public VerifyLoginVerificationCodeRequest(long ip, int deviceType, String fingerPrint, String mobileTicket, int smsType, String verifycationCode)
     {
+        this.ip = ip;
         this.deviceType = deviceType;
         this.fingerPrint = fingerPrint;
-        this.mobile = mobile;
+        this.mobileTicket = mobileTicket;
+        this.smsType = smsType;
         this.verifycationCode = verifycationCode;
     }
 
@@ -101,9 +103,11 @@ public class VerifyLoginVerificationCodeRequest extends Ice.ObjectImpl
     protected void __writeImpl(IceInternal.BasicStream __os)
     {
         __os.startWriteSlice(ice_staticId(), -1, true);
+        __os.writeLong(ip);
         __os.writeInt(deviceType);
         __os.writeString(fingerPrint);
-        __os.writeString(mobile);
+        __os.writeString(mobileTicket);
+        __os.writeInt(smsType);
         __os.writeString(verifycationCode);
         __os.endWriteSlice();
     }
@@ -111,18 +115,24 @@ public class VerifyLoginVerificationCodeRequest extends Ice.ObjectImpl
     protected void __readImpl(IceInternal.BasicStream __is)
     {
         __is.startReadSlice();
+        ip = __is.readLong();
         deviceType = __is.readInt();
         fingerPrint = __is.readString();
-        mobile = __is.readString();
+        mobileTicket = __is.readString();
+        smsType = __is.readInt();
         verifycationCode = __is.readString();
         __is.endReadSlice();
     }
+
+    public long ip;
 
     public int deviceType;
 
     public String fingerPrint;
 
-    public String mobile;
+    public String mobileTicket;
+
+    public int smsType;
 
     public String verifycationCode;
 
@@ -132,5 +142,5 @@ public class VerifyLoginVerificationCodeRequest extends Ice.ObjectImpl
         return (VerifyLoginVerificationCodeRequest)super.clone();
     }
 
-    public static final long serialVersionUID = 3519249325129374664L;
+    public static final long serialVersionUID = 7543102437057616480L;
 }

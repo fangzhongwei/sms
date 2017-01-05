@@ -25,13 +25,13 @@ class SmsClientServiceImpl @Inject()(@Named("sms.ice.client.init.config") iceIni
                                      icePrxFactory: IcePrxFactory) extends SmsClientService {
   val logger = LoggerFactory.getLogger(this.getClass)
 
-  var intstance: SmsServiceEndpointPrx = _
+  var instance: SmsServiceEndpointPrx = _
 
   override def initClient: Unit = {
-    intstance = icePrxFactory.make[SmsServiceEndpointPrx](Array[String](iceInitConfig, iceInitSizeConfig, iceInitSizeMaxConfig, iceInitSizeWarnConfig), proxyConfig, SmsServiceEndpointPrxHelper.checkedCast)
+    instance = icePrxFactory.make[SmsServiceEndpointPrx](Array[String](iceInitConfig, iceInitSizeConfig, iceInitSizeMaxConfig, iceInitSizeWarnConfig), proxyConfig, SmsServiceEndpointPrxHelper.checkedCast)
   }
 
-  override def sendLoginVerificationCode(traceId: String, request: SendLoginVerificationCodeRequest): SendLoginVerificationCodeResponse = intstance.sendLoginVerificationCode(traceId, request)
+  override def sendLoginVerificationCode(traceId: String, request: SendLoginVerificationCodeRequest): SendLoginVerificationCodeResponse = instance.sendLoginVerificationCode(traceId, request)
 
-  override def verifyLoginVerificationCode(traceId: String, request: VerifyLoginVerificationCodeRequest): BaseResponse = intstance.verifyLoginVerificationCode(traceId, request)
+  override def verifyLoginVerificationCode(traceId: String, request: VerifyLoginVerificationCodeRequest): BaseResponse = instance.verifyLoginVerificationCode(traceId, request)
 }

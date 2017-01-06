@@ -96,12 +96,19 @@ class SmsServiceImpl @Inject()(rabbitmqProducerTemplate: RabbitmqProducerTemplat
               case false => record.verifyTimes >= record.maxTryTimes match {
                 case true => smsRepository.updateRecordStatus(record.id, 2)
                   throw ServiceException.make(ErrorCode.EC_SMS_CODE_EXPIRED_ERROR)
-                case false => record.verifyCode.equals(r.verifycationCode) match {
-                  case true => smsRepository.updateRecordStatus(record.id, 99)
-                    true
-                  case false => smsRepository.increateTryTimes(record.id)
-                    false
-                }
+                case false =>
+                  record.ip == r.ip && record.deviceType == r.deviceType && record.fingerPrint == r.fingerPrint match {
+                    case true =>
+                      record.verifyCode.equals(r.verifycationCode) match {
+                        case true => smsRepository.updateRecordStatus(record.id, 99)
+                          true
+                        case false => smsRepository.increateTryTimes(record.id)
+                          false
+                      }
+                    case false =>
+                      logger.error(s"invalid ip or device.db:$record, request:$r")
+                      false
+                  }
               }
             }
             case _ => throw ServiceException.make(ErrorCode.EC_SMS_WRONG_CODE)

@@ -9,4 +9,4 @@ case class SmsVerifyTemplate(smsType: Int, minIntervalSeconds: Int, contentTempl
 
 case class SmsVerifyAggregation(id: Long, sendDate: String, memberId: Long, msgType: Int, totalCount: Int, gmtUpdate: Timestamp)
 
-case class SmsVerifyRecord(id: Long, memberId: Long, smsType: Int, content: String, verifyCode: String, channel: Int, traceId: String, ip: Long, deviceType: Byte, fingerPrint: String, status:Byte, verifyTimes:Byte, maxTryTimes:Byte, expireTime:Timestamp, resend:Boolean, lastChannel:Int)
+case class SmsVerifyRecord(id: Long, memberId: Long, smsType: Int, content: String, verifyCode: String, channel: Int, extId:String, traceId: String, ip: Long, deviceType: Byte, fingerPrint: String, status:Byte, verifyTimes:Byte, maxTryTimes:Byte, expireTime:Timestamp, resend:Boolean, lastChannel:Int)

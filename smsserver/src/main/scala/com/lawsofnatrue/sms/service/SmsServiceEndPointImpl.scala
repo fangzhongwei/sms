@@ -2,43 +2,43 @@ package com.lawsofnatrue.sms.service
 
 import javax.inject.Inject
 
-import Ice.Current
-import RpcSms._
-import com.lawsofnature.common.exception.{ErrorCode, ServiceException}
+import com.jxjxgo.common.exception.{ErrorCode, ServiceException}
+import com.jxjxgo.sms.rpc.domain._
+import com.twitter.util.Future
 import org.slf4j.{Logger, LoggerFactory}
 
 /**
   * Created by fangzhongwei on 2017/1/3.
   */
-class SmsServiceEndPointImpl @Inject()(smsService: SmsService) extends _SmsServiceEndpointDisp {
+class SmsServiceEndPointImpl @Inject()(smsService: SmsService) extends SmsServiceEndpoint[Future] {
   private[this] val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
-  override def sendLoginVerificationCode(traceId: String, request: SendLoginVerificationCodeRequest, current: Current): SendLoginVerificationCodeResponse = {
+  override def sendLoginVerificationCode(traceId: String, request: SendLoginVerificationCodeRequest): Future[SendLoginVerificationCodeResponse] = {
     try {
-      new SendLoginVerificationCodeResponse("0", smsService.sendLoginVerificationCode(traceId, request))
+      Future.value(SendLoginVerificationCodeResponse("0", smsService.sendLoginVerificationCode(traceId, request)))
     } catch {
       case ex: ServiceException =>
         logger.error(traceId, ex)
-        new SendLoginVerificationCodeResponse(ex.getErrorCode.getCode, 0)
+        Future.value(SendLoginVerificationCodeResponse(ex.getErrorCode.getCode, 0))
       case ex: Exception =>
         logger.error(traceId, ex)
-        new SendLoginVerificationCodeResponse(ErrorCode.EC_SYSTEM_ERROR.getCode, 0)
+        Future.value(SendLoginVerificationCodeResponse(ErrorCode.EC_SYSTEM_ERROR.getCode, 0))
     }
   }
 
-  override def verifyLoginVerificationCode(traceId: String, verifyLoginVerificationCodeRequest: VerifyLoginVerificationCodeRequest, current: Current): BaseResponse = {
+  override def verifyLoginVerificationCode(traceId: String, request: VerifyLoginVerificationCodeRequest): Future[SmsBaseResponse] = {
     try {
-      smsService.verifyLoginVerificationCode(traceId, verifyLoginVerificationCodeRequest) match {
-        case true => new BaseResponse("0")
-        case false => new BaseResponse(ErrorCode.EC_SMS_WRONG_CODE.getDesc)
+      smsService.verifyLoginVerificationCode(traceId, request) match {
+        case true => Future.value(SmsBaseResponse("0"))
+        case false => Future.value(SmsBaseResponse(ErrorCode.EC_SMS_WRONG_CODE.getDesc))
       }
     } catch {
       case ex: ServiceException =>
         logger.error(traceId, ex)
-        new BaseResponse(ex.getErrorCode.getCode)
+        Future.value(SmsBaseResponse(ex.getErrorCode.getCode))
       case ex: Exception =>
         logger.error(traceId, ex)
-        new BaseResponse(ErrorCode.EC_SYSTEM_ERROR.getCode)
+        Future.value(SmsBaseResponse(ErrorCode.EC_SYSTEM_ERROR.getCode))
     }
   }
 }

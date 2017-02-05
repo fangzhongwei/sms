@@ -2,8 +2,8 @@ package com.lawsofnatrue.sms.repo
 
 import java.sql.Timestamp
 
+import com.jxjxgo.mysql.connection.DBComponent
 import com.lawsofnatrue.domain.{SmsVerifyAggregation, SmsVerifyRecord, SmsVerifyTemplate}
-import com.lawsofnature.connection.DBComponent
 
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -27,17 +27,16 @@ trait SmsRepository extends Tables {
 
   implicit def smsRecordToRow(r: SmsVerifyRecord): TmSmsVerifyRecordRow = {
     val millis: Long = System.currentTimeMillis()
-    TmSmsVerifyRecordRow(r.id, r.memberId, r.smsType, r.content, r.verifyCode, r.channel, r.traceId, r.ip, r.deviceType, r.fingerPrint, r.status, r.verifyTimes, r.maxTryTimes, r.expireTime, r.resend, r.lastChannel, new Timestamp(millis), new Timestamp(System.currentTimeMillis()))
+    TmSmsVerifyRecordRow(r.id, r.memberId, r.smsType, r.content, r.verifyCode, r.channel, r.traceId, r.extId, r.ip, r.deviceType, r.fingerPrint, r.status, r.verifyTimes, r.maxTryTimes, r.expireTime, r.resend, r.lastChannel, new Timestamp(millis), new Timestamp(millis))
   }
 
   implicit def rowToSmsVerifyRecord(r: TmSmsVerifyRecordRow): SmsVerifyRecord = {
-    val millis: Long = System.currentTimeMillis()
-    SmsVerifyRecord(r.id, r.memberId, r.smsType, r.content, r.verifyCode, r.channel, r.traceId, r.ip, r.deviceType, r.fingerPrint, r.status, r.verifyTimes, r.maxTryTimes, r.expireTime, r.resend, r.lastChannel)
+    SmsVerifyRecord(r.id, r.memberId, r.smsType, r.content, r.verifyCode, r.channel, r.extId, r.traceId, r.ip, r.deviceType, r.fingerPrint, r.status, r.verifyTimes, r.maxTryTimes, r.expireTime, r.resend, r.lastChannel)
   }
 
   implicit def smsAggregationToRow(aggregation: SmsVerifyAggregation): TmSmsVerifyAggregationRow = {
     val millis: Long = System.currentTimeMillis()
-    TmSmsVerifyAggregationRow(aggregation.id, aggregation.sendDate, aggregation.memberId, aggregation.msgType, aggregation.totalCount, new Timestamp(millis), new Timestamp(System.currentTimeMillis()))
+    TmSmsVerifyAggregationRow(aggregation.id, aggregation.sendDate, aggregation.memberId, aggregation.msgType, aggregation.totalCount, new Timestamp(millis), new Timestamp(millis))
   }
 
   implicit def rowToSmsAggregation(row: TmSmsVerifyAggregationRow): SmsVerifyAggregation = {

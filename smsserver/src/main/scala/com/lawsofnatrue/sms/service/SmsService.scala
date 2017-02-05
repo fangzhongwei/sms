@@ -3,19 +3,19 @@ package com.lawsofnatrue.sms.service
 import java.sql.Timestamp
 import javax.inject.Inject
 
-import RpcMember.MemberResponse
-import RpcSms.{SendLoginVerificationCodeRequest, VerifyLoginVerificationCodeRequest}
+import com.jxjxgo.common.exception.{ErrorCode, ServiceException}
+import com.jxjxgo.common.rabbitmq.RabbitmqProducerTemplate
+import com.jxjxgo.memberber.rpc.domain.{MemberBaseResponse, MemberEndpoint, MemberResponse}
+import com.jxjxgo.sms.domain.mq.sms.SmsMessage
+import com.jxjxgo.sms.rpc.domain.{SendLoginVerificationCodeRequest, VerifyLoginVerificationCodeRequest}
 import com.lawsofnatrue.domain.SmsVerifyTemplate
 import com.lawsofnatrue.sms.repo.SmsRepository
-import com.lawsofnature.common.exception.{ErrorCode, ServiceException}
-import com.lawsofnature.common.rabbitmq.RabbitmqProducerTemplate
-import com.lawsofnature.member.client.MemberClientService
-import com.lawsofnature.sms.domain.mq.sms.SmsMessage
+import com.twitter.util.{Await, Future}
 import com.typesafe.config.{Config, ConfigFactory}
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{Future, Promise}
+import scala.concurrent.Promise
 
 /**
   * Created by fangzhongwei on 2017/1/3.
@@ -28,7 +28,7 @@ trait SmsService {
   def verifyLoginVerificationCode(traceId: String, verifyLoginVerificationCodeRequest: VerifyLoginVerificationCodeRequest): Boolean
 }
 
-class SmsServiceImpl @Inject()(rabbitmqProducerTemplate: RabbitmqProducerTemplate, smsRepository: SmsRepository, memberClientService: MemberClientService) extends SmsService {
+class SmsServiceImpl @Inject()(rabbitmqProducerTemplate: RabbitmqProducerTemplate, smsRepository: SmsRepository, memberClientService: MemberEndpoint[Future]) extends SmsService {
   private[this] val logger: Logger = LoggerFactory.getLogger(getClass)
   private[this] val templateMap = Map[Int, SmsVerifyTemplate]()
 
@@ -39,13 +39,13 @@ class SmsServiceImpl @Inject()(rabbitmqProducerTemplate: RabbitmqProducerTemplat
   }
 
   def getMemberIdByMobile(traceId: String, mobileTicket: String): Long = {
-    val memberResponse: MemberResponse = memberClientService.getMemberByMobile(traceId, mobileTicket)
+    val memberResponse: MemberResponse = Await.result(memberClientService.getMemberByMobile(traceId, mobileTicket))
     memberResponse.code match {
       case "0" =>
         if (memberResponse.status == -1) throw ServiceException.make(ErrorCode.EC_UC_MEMBER_ACCOUNT_FREEZE)
         memberResponse.memberId
       case "EC_UC_MEMBER_NOT_EXISTS" => //ErrorCode.EC_UC_MEMBER_NOT_EXISTS
-        val response: RpcMember.BaseResponse = memberClientService.register(traceId, mobileTicket)
+        val response: MemberBaseResponse = Await.result(memberClientService.register(traceId, mobileTicket))
         response.code match {
           case "0" =>
             memberResponse.memberId
@@ -69,9 +69,9 @@ class SmsServiceImpl @Inject()(rabbitmqProducerTemplate: RabbitmqProducerTemplat
     smsTemplate
   }
 
-  def produceSmsMessage(smsMessage: SmsMessage): Future[Unit] = {
+  def produceSmsMessage(smsMessage: SmsMessage): scala.concurrent.Future[Unit] = {
     val promise: Promise[Unit] = Promise[Unit]
-    Future {
+    scala.concurrent.Future {
       val config: Config = ConfigFactory.load()
       rabbitmqProducerTemplate.send(config.getString("sms.mq.exchange"),
         config.getString("sms.mq.exchangeType"),
@@ -84,7 +84,7 @@ class SmsServiceImpl @Inject()(rabbitmqProducerTemplate: RabbitmqProducerTemplat
   }
 
   override def verifyLoginVerificationCode(traceId: String, r: VerifyLoginVerificationCodeRequest): Boolean = {
-    val memberResponse: MemberResponse = memberClientService.getMemberByMobile(traceId, r.mobileTicket)
+    val memberResponse: MemberResponse = Await.result(memberClientService.getMemberByMobile(traceId, r.mobileTicket))
     memberResponse.code match {
       case "0" => smsRepository.selectLastVerifyRecord(memberResponse.memberId, r.smsType.toByte) match {
         case Some(record) =>

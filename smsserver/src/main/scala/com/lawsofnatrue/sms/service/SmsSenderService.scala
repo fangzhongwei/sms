@@ -7,10 +7,10 @@ import javax.inject.Inject
 
 import com.lawsofnatrue.domain.{SmsVerifyAggregation, SmsVerifyRecord, SmsVerifyTemplate}
 import com.lawsofnatrue.sms.repo.SmsRepository
-import com.lawsofnature.common.exception.{ErrorCode, ServiceException}
-import com.lawsofnature.common.helper.VerifyCodeHelper
-import com.lawsofnature.common.service.ConsumeService
-import com.lawsofnature.sms.domain.mq.sms.SmsMessage
+import com.jxjxgo.common.exception.{ErrorCode, ServiceException}
+import com.jxjxgo.common.helper.VerifyCodeHelper
+import com.jxjxgo.common.service.ConsumeService
+import com.jxjxgo.sms.domain.mq.sms.SmsMessage
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -23,7 +23,7 @@ trait SmsSenderService extends ConsumeService {
   def sendSms(traceId: String, smsMessage: SmsMessage): Unit
 }
 
-class SmsSenderServiceImpl @Inject()(smsRepository: SmsRepository, smsService: SmsService) extends SmsSenderService {
+class SmsSenderServiceImpl @Inject()(smsRepository: SmsRepository, smsService: SmsService, mwService: MWService) extends SmsSenderService {
   private[this] val logger: Logger = LoggerFactory.getLogger(getClass)
 
   override def consume(data: Array[Byte]): Future[Unit] = {
@@ -46,6 +46,7 @@ class SmsSenderServiceImpl @Inject()(smsRepository: SmsRepository, smsService: S
     val smsType: Int = smsMessage.smsType
 
     val channel: Int = smsMessage.channel
+    val mobileTicket: String = smsMessage.mobile
 
     val template: SmsVerifyTemplate = smsService.getTemplate(smsType)
     smsRepository.selectSmsAggregation(sendDate, memberId, smsType) match {
@@ -63,11 +64,13 @@ class SmsSenderServiceImpl @Inject()(smsRepository: SmsRepository, smsService: S
     val code: String = VerifyCodeHelper.generateCode(4)
     val content = generateContent(template.contentTemplate, code)
 
+    val msgId = System.currentTimeMillis()
+
     channel match {
-      case 1 => // todo send to mwkj
+      case 1 => mwService.sendVerifyCode(traceId, msgId, mobileTicket, content)
       case _ => logger.error(s"channel:$channel not config ! ")
     }
-    val record: SmsVerifyRecord = SmsVerifyRecord(0, memberId, smsType, content, code, channel, traceId, smsMessage.ip, smsMessage.deviceType.toByte, smsMessage.fingerPrint, 0, 0, 3, new Timestamp(System.currentTimeMillis() + 60 * 1000 * template.expireMinutes), smsMessage.resend, smsMessage.lastChannel)
+    val record: SmsVerifyRecord = SmsVerifyRecord(0, memberId, smsType, content, code, channel, msgId.toString, traceId, smsMessage.ip, smsMessage.deviceType.toByte, smsMessage.fingerPrint, 0, 0, 3, new Timestamp(System.currentTimeMillis() + 60 * 1000 * template.expireMinutes), smsMessage.resend, smsMessage.lastChannel)
     smsRepository.createSmsRecord(record, sendDate, memberId, smsType)
   }
 }

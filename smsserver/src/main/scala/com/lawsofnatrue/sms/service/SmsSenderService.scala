@@ -5,35 +5,36 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import javax.inject.Inject
 
-import com.lawsofnatrue.domain.{SmsVerifyAggregation, SmsVerifyRecord, SmsVerifyTemplate}
-import com.lawsofnatrue.sms.repo.SmsRepository
 import com.jxjxgo.common.exception.{ErrorCode, ServiceException}
 import com.jxjxgo.common.helper.VerifyCodeHelper
-import com.jxjxgo.common.service.ConsumeService
+import com.jxjxgo.common.mq.service.ConsumerService
 import com.jxjxgo.sms.domain.mq.sms.SmsMessage
+import com.lawsofnatrue.domain.{SmsVerifyAggregation, SmsVerifyRecord, SmsVerifyTemplate}
+import com.lawsofnatrue.sms.repo.SmsRepository
 import org.slf4j.{Logger, LoggerFactory}
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{Future, Promise}
 
 /**
   * Created by fangzhongwei on 2017/1/4.
   */
-trait SmsSenderService extends ConsumeService {
+trait SmsSenderService extends ConsumerService {
   def sendSms(traceId: String, smsMessage: SmsMessage): Unit
 }
 
 class SmsSenderServiceImpl @Inject()(smsRepository: SmsRepository, smsService: SmsService, mwService: MWService) extends SmsSenderService {
   private[this] val logger: Logger = LoggerFactory.getLogger(getClass)
 
-  override def consume(data: Array[Byte]): Future[Unit] = {
-    val promise: Promise[Unit] = Promise[Unit]()
-    Future {
-      val smsMessage: SmsMessage = SmsMessage.parseFrom(data)
-      sendSms(smsMessage.traceId, smsMessage)
-      promise.success()
+  override def consume(list: scala.collection.mutable.ListBuffer[scala.Array[scala.Byte]]): Unit = {
+    val iterator: Iterator[Array[Byte]] = list.iterator
+    while (iterator.hasNext) {
+      try {
+        val smsMessage: SmsMessage = SmsMessage.parseFrom(iterator.next())
+        sendSms(smsMessage.traceId, smsMessage)
+      } catch {
+        case ex: Exception => {
+          logger.error("consumer error", ex)
+        }
+      }
     }
-    promise.future
   }
 
   def generateContent(contentTemplate: String, code: String) = {

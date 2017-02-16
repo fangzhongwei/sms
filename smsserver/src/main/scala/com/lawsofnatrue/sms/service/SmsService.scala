@@ -4,7 +4,7 @@ import java.sql.Timestamp
 import javax.inject.Inject
 
 import com.jxjxgo.common.exception.{ErrorCode, ServiceException}
-import com.jxjxgo.common.rabbitmq.RabbitmqProducerTemplate
+import com.jxjxgo.common.kafka.template.ProducerTemplate
 import com.jxjxgo.memberber.rpc.domain.{MemberBaseResponse, MemberEndpoint, MemberResponse}
 import com.jxjxgo.sms.domain.mq.sms.SmsMessage
 import com.jxjxgo.sms.rpc.domain.{SendLoginVerificationCodeRequest, VerifyLoginVerificationCodeRequest}
@@ -28,7 +28,7 @@ trait SmsService {
   def verifyLoginVerificationCode(traceId: String, verifyLoginVerificationCodeRequest: VerifyLoginVerificationCodeRequest): Boolean
 }
 
-class SmsServiceImpl @Inject()(rabbitmqProducerTemplate: RabbitmqProducerTemplate, smsRepository: SmsRepository, memberClientService: MemberEndpoint[Future]) extends SmsService {
+class SmsServiceImpl @Inject()(producerTemplate: ProducerTemplate, smsRepository: SmsRepository, memberClientService: MemberEndpoint[Future]) extends SmsService {
   private[this] val logger: Logger = LoggerFactory.getLogger(getClass)
   private[this] val templateMap = Map[Int, SmsVerifyTemplate]()
 
@@ -73,11 +73,7 @@ class SmsServiceImpl @Inject()(rabbitmqProducerTemplate: RabbitmqProducerTemplat
     val promise: Promise[Unit] = Promise[Unit]
     scala.concurrent.Future {
       val config: Config = ConfigFactory.load()
-      rabbitmqProducerTemplate.send(config.getString("sms.mq.exchange"),
-        config.getString("sms.mq.exchangeType"),
-        config.getString("sms.mq.queue"),
-        config.getString("sms.mq.routingKey"),
-        smsMessage.toByteArray)
+      producerTemplate.send(config.getString("kafka.topic.sms.login.code"), smsMessage.toByteArray)
       promise.success()
     }
     promise.future

@@ -5,7 +5,8 @@ import java.util
 import com.google.inject.name.Names
 import com.google.inject.{AbstractModule, Guice, TypeLiteral}
 import com.jxjxgo.common.helper.ConfigHelper
-import com.jxjxgo.common.rabbitmq.{RabbitmqConsumerTemplate, RabbitmqConsumerTemplateImpl, RabbitmqProducerTemplate, RabbitmqProducerTemplateImpl}
+import com.jxjxgo.common.kafka.template.{ConsumerTemplate, ConsumerTemplateImpl, ProducerTemplate, ProducerTemplateImpl}
+import com.jxjxgo.common.mq.service.ConsumerService
 import com.jxjxgo.edcenter.rpc.domain.EdServiceEndpoint
 import com.jxjxgo.memberber.rpc.domain.MemberEndpoint
 import com.jxjxgo.scrooge.thrift.template.{ScroogeThriftServerTemplate, ScroogeThriftServerTemplateImpl}
@@ -30,8 +31,9 @@ object SmsApplicationServer extends App {
 
       val config: Config = ConfigFactory.load()
 
-      bind(classOf[RabbitmqProducerTemplate]).to(classOf[RabbitmqProducerTemplateImpl]).asEagerSingleton()
-      bind(classOf[RabbitmqConsumerTemplate]).to(classOf[RabbitmqConsumerTemplateImpl]).asEagerSingleton()
+      bind(classOf[ProducerTemplate]).to(classOf[ProducerTemplateImpl]).asEagerSingleton()
+      bind(classOf[ConsumerTemplate]).to(classOf[ConsumerTemplateImpl]).asEagerSingleton()
+      bind(classOf[ConsumerService]).to(classOf[SmsSenderServiceImpl]).asEagerSingleton()
 
       bind(classOf[SmsRepository]).to(classOf[SmsRepositoryImpl]).asEagerSingleton()
       bind(classOf[SmsService]).to(classOf[SmsServiceImpl]).asEagerSingleton()
@@ -46,10 +48,10 @@ object SmsApplicationServer extends App {
     }
   })
 
-  //  injector.getInstance(classOf[RabbitmqProducerTemplate]).connect
-  //  private[this] val consumerTemplate: RabbitmqConsumerTemplate = injector.getInstance(classOf[RabbitmqConsumerTemplate])
-  //  consumerTemplate.connect
-  //  consumerTemplate.startConsume(ConfigFactory.load().getString("sms.mq.queue"), injector.getInstance(classOf[SmsSenderService]))
+  val config: Config = ConfigFactory.load()
+  val consumerTemplate: ConsumerTemplate = injector.getInstance(classOf[ConsumerTemplate])
+  consumerTemplate.init
+  consumerTemplate.consume(config.getString("kafka.topic.sms.login.code"))
 
   injector.getInstance(classOf[ScroogeThriftServerTemplate]).init
 }

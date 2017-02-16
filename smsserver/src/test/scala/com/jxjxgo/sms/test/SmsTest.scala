@@ -26,7 +26,7 @@ object SmsTest {
 
 
 
-
+// '0 待验证, 1重发失效，2尝试3次失效，3过期 ， 99验证成功'
 
 //    //    userId=账号&password=密码&pszMobis=电话号码&pszMsg=同事您好， 感谢您对此次测试的配合。&iMobiCount=号码个数&pszSubPort=*&MsgId=0
 //    var params = Map[String, String]()

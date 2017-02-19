@@ -34,18 +34,18 @@ class SmsServiceImpl @Inject()(producerTemplate: ProducerTemplate, smsRepository
 
   override def sendLoginVerificationCode(traceId: String, r: SendLoginVerificationCodeRequest): Int = {
     val smsTemplate: SmsVerifyTemplate = getTemplate(r.smsType)
-    produceSmsMessage(SmsMessage(traceId, r.ip, r.deviceType, r.fingerPrint, getMemberIdByMobile(traceId, r.mobileTicket), r.smsType, r.mobileTicket, smsTemplate.channel, r.resend, r.lastChannel, ""))
+    produceSmsMessage(SmsMessage(traceId, r.ip, r.deviceType, r.fingerPrint, getMemberIdByMobile(traceId, r.mobileTicket, r.deviceType), r.smsType, r.mobileTicket, smsTemplate.channel, r.resend, r.lastChannel, ""))
     smsTemplate.channel
   }
 
-  def getMemberIdByMobile(traceId: String, mobileTicket: String): Long = {
+  def getMemberIdByMobile(traceId: String, mobileTicket: String, deviceType: Int): Long = {
     val memberResponse: MemberResponse = Await.result(memberClientService.getMemberByMobile(traceId, mobileTicket))
     memberResponse.code match {
       case "0" =>
         if (memberResponse.status == -1) throw ServiceException.make(ErrorCode.EC_UC_MEMBER_ACCOUNT_FREEZE)
         memberResponse.memberId
       case "EC_UC_MEMBER_NOT_EXISTS" => //ErrorCode.EC_UC_MEMBER_NOT_EXISTS
-        val response: MemberBaseResponse = Await.result(memberClientService.register(traceId, mobileTicket))
+        val response: MemberBaseResponse = Await.result(memberClientService.register(traceId, mobileTicket, deviceType))
         response.code match {
           case "0" =>
             memberResponse.memberId

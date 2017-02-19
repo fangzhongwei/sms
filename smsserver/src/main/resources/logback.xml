@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%highlight([%level]) - [%date] - [%logger] %msg%n</pattern>
+        </encoder>
+    </appender>
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <prudent>true</prudent>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>log-%d{yyyy-MM-dd}.log</fileNamePattern>
+        </rollingPolicy>
+        <append>true</append>
+        <encoder>
+            <pattern>%highlight([%level]) - [%date] - [%logger] %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- This is the kafkaAppender -->
+    <!--<appender name="kafkaAppender" class="com.jxjxgo.logback.KafkaAppender">-->
+        <!--<encoder>-->
+            <!--<pattern>{"date":"%date","level":"%level","logger";"%logger","msg":"%msg"}</pattern>-->
+        <!--</encoder>-->
+        <!--<producerProperties>-->
+            <!--bootstrap.servers=192.168.181.130:9092;-->
+            <!--acks=0;-->
+            <!--retries=0;-->
+            <!--batch.size=16384;-->
+            <!--linger.ms=1000;-->
+            <!--buffer.memory=33554432;-->
+            <!--key.serializer=org.apache.kafka.common.serialization.StringSerializer;-->
+            <!--value.serializer=org.apache.kafka.common.serialization.StringSerializer;-->
+            <!--max.block.ms=10000;-->
+            <!--compression.type=gzip;-->
+        <!--</producerProperties>-->
+        <!--<topic>test</topic>-->
+    <!--</appender>-->
+
+
+    <!-- 异步输出 -->
+    <appender name="asyncAppender" class="ch.qos.logback.classic.AsyncAppender">
+        <discardingThreshold>0</discardingThreshold>
+        <queueSize>256</queueSize>
+        <appender-ref ref="FILE" />
+    </appender>
+
+    <logger name="asyncFileLogger" additivity="false" level="debug">
+        <appender-ref ref="asyncAppender" />
+    </logger>
+
+    <root level="debug">
+        <appender-ref ref="CONSOLE"/>
+        <!--<appender-ref ref="kafkaAppender"/>-->
+        <appender-ref ref="asyncAppender" />
+    </root>
+
+</configuration>

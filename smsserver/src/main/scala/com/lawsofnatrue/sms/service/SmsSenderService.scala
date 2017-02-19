@@ -28,6 +28,7 @@ class SmsSenderServiceImpl @Inject()(smsRepository: SmsRepository, smsService: S
     while (iterator.hasNext) {
       try {
         val smsMessage: SmsMessage = SmsMessage.parseFrom(iterator.next())
+        logger.info(s"receive SmsMessage: $smsMessage")
         sendSms(smsMessage.traceId, smsMessage)
       } catch {
         case ex: Exception => {
@@ -59,7 +60,7 @@ class SmsSenderServiceImpl @Inject()(smsRepository: SmsRepository, smsService: S
         }
       case None =>
         //(id: Long, sendDate: String, memberId: Long, msgType: Int, totalCount: Int, gmtUpdate:Timestamp)
-        smsRepository.createSmsAggregation(SmsVerifyAggregation(0, sendDate, memberId, smsType, 0, new Timestamp(System.currentTimeMillis())))
+        smsRepository.createSmsAggregation(SmsVerifyAggregation(smsRepository.getNextAggregationId, sendDate, memberId, smsType, 0, new Timestamp(System.currentTimeMillis())))
     }
 
     val code: String = VerifyCodeHelper.generateCode(4)
@@ -71,7 +72,7 @@ class SmsSenderServiceImpl @Inject()(smsRepository: SmsRepository, smsService: S
       case 1 => mwService.sendVerifyCode(traceId, msgId, mobileTicket, content)
       case _ => logger.error(s"channel:$channel not config ! ")
     }
-    val record: SmsVerifyRecord = SmsVerifyRecord(0, memberId, smsType, content, code, channel, msgId.toString, traceId, smsMessage.ip, smsMessage.deviceType.toByte, smsMessage.fingerPrint, 0, 0, 3, new Timestamp(System.currentTimeMillis() + 60 * 1000 * template.expireMinutes), smsMessage.resend, smsMessage.lastChannel)
+    val record: SmsVerifyRecord = SmsVerifyRecord(smsRepository.getNextRecordId, memberId, smsType, content, code, channel, msgId.toString, traceId, smsMessage.ip, smsMessage.deviceType.toByte, smsMessage.fingerPrint, 0, 0, 3, new Timestamp(System.currentTimeMillis() + 60 * 1000 * template.expireMinutes), smsMessage.resend, smsMessage.lastChannel)
     smsRepository.createSmsRecord(record, sendDate, memberId, smsType)
   }
 }

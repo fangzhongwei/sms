@@ -48,11 +48,8 @@ object SmsApplicationServer extends App {
     }
   })
 
-  injector.getInstance(classOf[ProducerTemplate]).init
-
   val config: Config = ConfigFactory.load()
   val consumerTemplate: ConsumerTemplate = injector.getInstance(classOf[ConsumerTemplate])
-  consumerTemplate.init
   consumerTemplate.consume(config.getString("kafka.topic.sms.login.code"))
 
   injector.getInstance(classOf[ScroogeThriftServerTemplate]).init

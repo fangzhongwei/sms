@@ -66,7 +66,7 @@ trait SmsRepository extends Tables {
   def selectSmsAggregation(sendDate: String, memberId: Long, smsType: Int): Option[SmsVerifyAggregation] = {
     Await.result(db.run {
       TmSmsVerifyAggregation.filter {
-        a => a.sendDate === sendDate && a.memberId == memberId && a.smsType == smsType
+        a => a.sendDate === sendDate && a.memberId === memberId && a.smsType === smsType
       }.result.headOption
     }, Duration.Inf) match {
       case Some(row) => Some(row)
@@ -87,7 +87,7 @@ trait SmsRepository extends Tables {
 
   def createSmsRecord(smsRecord: SmsVerifyRecord, sendDate: String, memberId: Long, smsType: Int) = {
     val a = (for {
-      ns <- sqlu"""UPDATE tm_sms_verify_aggregation SET total_count = total_count + 1 WHERE sendDate = $sendDate AND member_id = $memberId AND sms_type = $smsType """
+      ns <- sqlu"""UPDATE tm_sms_verify_aggregation SET total_count = total_count + 1 WHERE send_date = $sendDate AND member_id = $memberId AND sms_type = $smsType """
       _ <- TmSmsVerifyRecord += smsRecord
     } yield ()).transactionally
     db.run(a)
@@ -99,6 +99,14 @@ trait SmsRepository extends Tables {
 
   def updateRecordStatus(id: Long, status: Int) = db.run {
     sqlu"""UPDATE tm_sms_verify_record SET status = $status, verify_times = verify_times + 1 WHERE id = $id """
+  }
+
+  def getNextAggregationId: Long = {
+    Await.result(db.run(sql"""select nextval('seq_sms_verify_aggregation_id')""".as[(Long)]), Duration.Inf).head
+  }
+
+  def getNextRecordId: Long = {
+    Await.result(db.run(sql"""select nextval('seq_sms_verify_record_id')""".as[(Long)]), Duration.Inf).head
   }
 }
 

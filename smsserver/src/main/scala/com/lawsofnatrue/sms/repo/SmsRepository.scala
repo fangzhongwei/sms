@@ -76,7 +76,7 @@ trait SmsRepository extends Tables {
 
   def selectLastVerifyRecord(memberId: Long, smsType: Int): Option[SmsVerifyRecord] = {
     Await.result(db.run {
-      TmSmsVerifyRecord.sortBy(_.id).take(1).filter {
+      TmSmsVerifyRecord.sortBy(_.id desc).take(1).filter {
         r => r.memberId === memberId && r.smsType === smsType
       }.result.headOption
     }, Duration.Inf) match {

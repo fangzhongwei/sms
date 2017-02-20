@@ -30,7 +30,7 @@ class SmsServiceEndPointImpl @Inject()(smsService: SmsService) extends SmsServic
     try {
       smsService.verifyLoginVerificationCode(traceId, request) match {
         case true => Future.value(SmsBaseResponse("0"))
-        case false => Future.value(SmsBaseResponse(ErrorCode.EC_SMS_WRONG_CODE.getDesc))
+        case false => Future.value(SmsBaseResponse(ErrorCode.EC_SMS_WRONG_CODE.getCode))
       }
     } catch {
       case ex: ServiceException =>

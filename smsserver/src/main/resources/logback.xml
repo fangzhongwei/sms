@@ -9,7 +9,8 @@
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <prudent>true</prudent>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>log-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!--<fileNamePattern>d:\\logs\\jxjxgo\\sms\\log-%d{yyyy-MM-dd}.log</fileNamePattern>-->
+            <fileNamePattern>/var/log/jxjxgo/sms/log-%d{yyyy-MM-dd}.log</fileNamePattern>
         </rollingPolicy>
         <append>true</append>
         <encoder>
@@ -45,11 +46,11 @@
         <appender-ref ref="FILE" />
     </appender>
 
-    <logger name="asyncFileLogger" additivity="false" level="debug">
+    <logger name="asyncFileLogger" additivity="false" level="info">
         <appender-ref ref="asyncAppender" />
     </logger>
 
-    <root level="debug">
+    <root level="info">
         <appender-ref ref="CONSOLE"/>
         <!--<appender-ref ref="kafkaAppender"/>-->
         <appender-ref ref="asyncAppender" />

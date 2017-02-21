@@ -21,6 +21,7 @@ lazy val smscommon = (project in file("smscommon")).settings(commonSettings: _*)
 
 lazy val smsserver = (project in file("smsserver")).settings(commonSettings: _*).settings(
   name := """smsserver""",
+  mainClass in (Compile, run) := Some("com.lawsofnatrue.sms.server.SmsApplicationServer"),
   libraryDependencies ++= Seq(
     "com.jxjxgo.sms" % "smscommon_2.11" % "1.0",
     "com.jxjxgo.common" % "common-db_2.11" % "1.0",

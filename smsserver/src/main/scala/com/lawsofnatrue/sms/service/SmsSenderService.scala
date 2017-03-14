@@ -63,13 +63,14 @@ class SmsSenderServiceImpl @Inject()(smsRepository: SmsRepository, smsService: S
         smsRepository.createSmsAggregation(SmsVerifyAggregation(smsRepository.getNextAggregationId, sendDate, memberId, smsType, 0, new Timestamp(System.currentTimeMillis())))
     }
 
-    val code: String = VerifyCodeHelper.generateCode(4)
+//    val code: String = VerifyCodeHelper.generateCode(4)
+    val code: String = "1111"
     val content = generateContent(template.contentTemplate, code)
 
     val msgId = System.currentTimeMillis()
 
     channel match {
-      case 1 => mwService.sendVerifyCode(traceId, msgId, mobileTicket, content)
+      case 1 => //mwService.sendVerifyCode(traceId, msgId, mobileTicket, content)
       case _ => logger.error(s"channel:$channel not config ! ")
     }
     val record: SmsVerifyRecord = SmsVerifyRecord(smsRepository.getNextRecordId, memberId, smsType, content, code, channel, msgId.toString, traceId, smsMessage.ip, smsMessage.deviceType.toByte, smsMessage.fingerPrint, 0, 0, 3, new Timestamp(System.currentTimeMillis() + 60 * 1000 * template.expireMinutes), smsMessage.resend, smsMessage.lastChannel)

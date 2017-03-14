@@ -73,6 +73,7 @@ class SmsServiceImpl @Inject()(producerTemplate: ProducerTemplate, smsRepository
     val promise: Promise[Unit] = Promise[Unit]
     scala.concurrent.Future {
       val config: Config = ConfigFactory.load()
+      logger.info(s"send sms message:$smsMessage")
       producerTemplate.send(config.getString("kafka.topic.sms.login.code"), smsMessage.toByteArray)
       promise.success()
     }
